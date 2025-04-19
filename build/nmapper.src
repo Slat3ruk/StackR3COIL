@@ -1,0 +1,76 @@
+//
+green = function(str)
+    return "<color=#81eb00><b>"+str+"</b></color>"
+end function
+
+magenta = function(str)
+    return "<color=#b0509e><b>"+str+"</b></color>"
+end function
+
+red = function(str)
+    return "<color=#c30000><b>"+str+"</b></color>"
+end function
+
+yellow = function(str)
+	return "<color=#ebfa04><b>"+str+"</b></color>"
+end function
+
+ipAddress = params[0]
+isLanIp = is_lan_ip ( ipAddress )
+
+if isLanIp then
+	router = get_router;
+else
+	router = get_router( ipAddress )
+end if
+
+if router == null then exit ("Ip address not found")
+ports = null
+
+if not isLanIp then
+	ports = router.used_ports
+else
+	ports = router.device_ports(ipAddress)
+end if
+
+if ports == null then exit ("Ip address not found")
+
+info = "port state service version lan"
+print(green("\nStarting nmap scanner v0.1 " + current_date))
+print("Scanning "+ params[0] + "\n")
+print("Interesting ports on " + params[0] + "\n")
+if(ports.len ==0) then exit("Scan finished. No open ports found.")
+
+for port in ports
+	service_info = router.port_info(port)
+	lan_ips = port.get_lan_ip
+	port_status = "open"
+	
+	if(port.is_closed and not isLanIp) then
+		port_status = "closed"
+	end if
+	info = info +"\n" + port.port_number + " " + port_status + " " + service_info + " " + lan_ips
+end for
+print(format_columns(info) + "\n")
+
+
+adminInfo = whois(params[0])
+infoLines = adminInfo.split(char(10))
+infoObject = {}
+print(red(infoLines[0]))
+print(yellow(infoLines[1]))
+print(yellow(infoLines[2]))
+
+crypto = include_lib("/lib/crypto.so")
+// print(crypto.smtp_user_list(params[0],25))
+
+users = crypto.smtp_user_list(params[0],25)
+print(green("\nSMTP users found:"))
+if users.len == 0 then
+	print("No users found")
+else
+	print("Users found: " + users.len)
+end if
+for user in users
+	print(user)
+end for
