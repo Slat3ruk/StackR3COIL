@@ -1,17 +1,44 @@
 
-is_valid_ip = function(ip_addr)
-    octets = ip_addr.split("\.")
-    
-    if octets.len < 4 then return false
-
-    for octet in octets
-        octet = octet.to_int
-        if octet == null or octet < 0 or octet > 255 then return false
-    end for
-    return true
+/* 
+Tests if the provided lists is a set of valid IP octets
+*/
+is_valid_octets = function(octets)
+	for octet in octets
+		octet = octet.to_int
+		if octet == null or octet < 0 or octet > 255 then return false
+	end for
+	return true
 end function
 
+/*
+Tests if the provided IP addr is valid.
+
+Example: 192.168.1.0
+*/
+is_valid_ip = function(ip_addr)
+	octets = ip_addr.split("\.")
+
+	if octets.len < 4 then return false
+
+	return is_valid_octets(octets)
+end function
+
+/* 
+Tests if the provided IP addr is in range format. Only the last
+octet can have a range value
+
+Example: 192.168.1.0-255
+ */
 is_valid_ip_range = function(ip_addr)
-    log.error("Not yet implemented")
-    exit("")
+	octets = ip_addr.split("\.")
+
+	if octets.len < 4 or not octets[-1].indexOf("-") then return false
+
+	ip_range = octets[-1].split("-")
+	octets[-1] = ip_range[0]
+
+    lower_bound = ip_range[0].to_int
+    upper_bound = ip_range[1].to_int
+
+	return is_valid_octets(octets) and upper_bound > 0 and upper_bound > lower_bound and upper_bound <= 255
 end function

@@ -14,3 +14,11 @@ blue = function(str)
     return "<color=#0061ff>" + str + "</color>"
 end function
 
+magenta = function(str)
+    return "<color=#b0509e><b>"+str+"</b></color>"
+end function
+
+yellow = function(str)
+	return "<color=#ebfa04><b>"+str+"</b></color>"
+end function
+

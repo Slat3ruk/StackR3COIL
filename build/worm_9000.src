@@ -195,7 +195,6 @@ target_vuln_name = null
 vuln_select = user_input("Enter the name of the vulnerability you'd like to target: ")
 while not is_vuln_found
     
-
     for addr in vuln_map.indexes
         for vuln_name in vuln_map[addr].indexes
             if vuln_name == vuln_select then

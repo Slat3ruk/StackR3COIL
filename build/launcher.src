@@ -1,20 +1,3 @@
-//
-green = function(str)
-    return "<color=#2DF804><b>"+str+"</b></color>"
-end function
-
-magenta = function(str)
-    return "<color=#b0509e><b>"+str+"</b></color>"
-end function
-
-red = function(str)
-    return "<color=#c30000><b>"+str+"</b></color>"
-end function
-
-yellow = function(str)
-	return "<color=#ebfa04><b>"+str+"</b></color>"
-end function
-
 // new colour tables format?
 //colorRed = "<color=#FF0000FF><b>"
 //colorGreen = "<color=#00FF00FF><b>"
@@ -30,30 +13,35 @@ end function
 //CT = "</color></b>"
 
 //space to use for importing the modules
-import_code("/root/r3coil/nmapper.src")
-import_code("/root/r3coil/module1.src")
-import_code("/root/r3coil/module2.src")
-import_code("/root/r3coil/module3.src")
+// import_code("/root/r3coil/nmapper.src")
+// import_code("/root/r3coil/module1.src")
+// import_code("/root/r3coil/module2.src")
+// import_code("/root/r3coil/module3.src")
 
+import_code("./util/color.src")
+import_code("./util/logging.src")
+
+log = new Logger
+log.set_log_level("DEBUG")
 
 //launcher by Slat3r & Wilko (font for assci is Epic)
-print(green(" _______  ______   _______  _______ _________ _        "))
-print(green("(  ____ )/ ___  \ (  ____ \(  ___  )\__   __/( \      "))
-print(green("| (    )|\/   \  \| (    \/| (   ) |   ) (   | (      "))
-print(green("| (____)|   ___) /| |      | |   | |   | |   | |      "))
-print(green("|     __)  (___ ( | |      | |   | |   | |   | |      "))
-print(green("| (\ (         ) \| |      | |   | |   | |   | |      "))
-print(green("| ) \ \__/\___/  /| (____/\| (___) |___) (___| (____/\"))
-print(green("|/   \__/\______/ (_______/(_______)\_______/(_______/"))
-print("welcome to the Slat3r & Wilko launcher!")
-print("This launcher is made for use within Greyhack the game, use R3coil -h for command line help")
+log.info(green(" _______  ______   _______  _______ _________ _       "))
+log.info(green("(  ____ )/ ___  \ (  ____ \(  ___  )\__   __/( \      "))
+log.info(green("| (    )|\/   \  \| (    \/| (   ) |   ) (   | (      "))
+log.info(green("| (____)|   ___) /| |      | |   | |   | |   | |      "))
+log.info(green("|     __)  (___ ( | |      | |   | |   | |   | |      "))
+log.info(green("| (\ (         ) \| |      | |   | |   | |   | |      "))
+log.info(green("| ) \ \__/\___/  /| (____/\| (___) |___) (___| (____/\"))
+log.info(green("|/   \__/\______/ (_______/(_______)\_______/(_______/"))
+log.info("welcome to the Slat3r & Wilko launcher!")
+log.info("This launcher is made for use within Greyhack the game, use R3coil -h for command line help")
 
 hostComputer = get_shell.host_computer
 if hostComputer.is_network_active then
-    print("Network is <b>active</b>, you can use the launcher to connect to other computers")
+    log.info("Network is <b>active</b>, you can use the launcher to connect to other computers")
 else
-    print("Network is not active, you can only use the launcher locally")
-    print("ensue you have wifi enabled or ethernet cable connected")
+    log.warning("Network is not active, you can only use the launcher locally")
+    log.info("ensue you have wifi enabled or ethernet cable connected")
 end if
 
 //user authentication script
@@ -74,4 +62,4 @@ security_code =  {"Primary":"test", "Secondary":"test2"} //change this to your p
 //end if
 //end of user authentication script
 
-print("current commands are as follows: mapper, module1, module2, module3")
+log.info("current commands are as follows: mapper, module1, module2, module3")
