@@ -1,0 +1,17 @@
+
+is_valid_ip = function(ip_addr)
+    octets = ip_addr.split("\.")
+    
+    if octets.len < 4 then return false
+
+    for octet in octets
+        octet = octet.to_int
+        if octet == null or octet < 0 or octet > 255 then return false
+    end for
+    return true
+end function
+
+is_valid_ip_range = function(ip_addr)
+    log.error("Not yet implemented")
+    exit("")
+end function

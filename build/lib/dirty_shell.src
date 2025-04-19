@@ -1,3 +1,5 @@
+import_code("../util/ip_addr.src")
+
 DirtyShell = {}
 
 DirtyShell.shell = null
@@ -38,12 +40,57 @@ DirtyShell._exit = function()
     // Empty function
 end function
 
+DirtyShell._ping = function()
+    log.info("Ping options:")
+    log.info("[0] Single IP")
+    log.info("[1] Multi IP")
+    print
+
+    user_option = user_input("Select option (0-1): ").to_int
+
+    if typeof(user_option) != "number" or user_option < 0 or user_option > 1 then
+        log.warning("Invalid option\n")
+        return
+    else if user_option == 0 then
+        DirtyShell.ping_single
+    else
+        DirtyShell.ping_multi
+    end if      
+end function
+
+DirtyShell.ping_single = function()
+    ip_addr = user_input("Enter ip address (format 255.255.255.255): ").trim
+    
+    if not is_valid_ip(ip_addr) then
+        log.warning("Invalid ip address")
+        return
+    end if
+
+    result = DirtyShell.shell.ping(ip_addr)
+
+    if result == 1 then
+        log.info(ip_addr + " host reachable\n")
+    else if result == 0 then
+        log.info(ip_addr + " host not reachable\n")
+    else
+        log.warning(result + "\n")
+    end if
+end function
+
+DirtyShell.ping_multi = function()
+    ip_addr = user_input("Enter ip address (format 1.1.1.1-255): ").trim
+
+    if not is_valid_ip_range then
+        log.warning("Invalid ip range")
+        return
+    end if
+end function
 
 DirtyShell.options = {
-    "cmd" : {"idx": 0, "cmd" : @DirtyShell.cmd},
-    "ping" : {"idx": 1, "cmd": null},
-    "start_terminal" : {"idx" : 2, "cmd" : null},
-    "exit" : {"idx": 3, "cmd" : @DirtyShell._exit},
+    0 : {"name": "cmd", "cmd" : @DirtyShell.cmd},
+    1 : {"name": "ping", "cmd": @DirtyShell._ping},
+    2 : {"name" : "start_terminal", "cmd" : null},
+    3 : {"name": "exit", "cmd" : @DirtyShell._exit},
 }
 
 DirtyShell.execute = function()
@@ -58,18 +105,16 @@ DirtyShell.execute = function()
         DirtyShell.print_menu
         print
         user_option = user_input("Select option (0-" + (options.len-1) + "): ").to_int
-        if typeof(user_option) != "number" or user_option < 0 or user_option > options.len-1 then 
+        print
+        if typeof(user_option) != "number" or not options.hasIndex(user_option) then 
             log.warning("Option not recognised, try again")
             continue
-        else if user_option == options["exit"]["idx"] then
+        else if options[user_option]["name"] == "exit" then
             log.info("Closing Dirty Shell...")
             break
         else
-            for option in options.indexes
-                // Find the write option handler and execute
-                // Pretty janky but what can you do
-                if options[option]["idx"] == user_option then options[option]["cmd"]
-            end for
+            // Execute handler
+            options[user_option]["cmd"]
         end if
     end while
 end function
@@ -79,7 +124,7 @@ DirtyShell.print_menu = function()
     options = DirtyShell.options
 
     for option in options.indexes
-        log.info("[" + options[option]["idx"] + "] - " + option)
+        log.info("[" + option + "] - " + options[option]["name"])
     end for
 end function
 
