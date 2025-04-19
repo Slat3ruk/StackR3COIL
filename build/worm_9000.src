@@ -1,0 +1,216 @@
+import_code("util/color.src")
+import_code("util/logging.src")
+
+import_code("lib/dirty_shell.src")
+
+// ################################# [FUNCTIONS] ##################################
+print_banner = function()
+    print green("          _______  _______  _         _________          _______             _______  _______  _        ______  ")
+    print green("|\     /|(  ___  )(  ____ \| \    /\  \__   __/|\     /|(  ____ \  |\     /|(  ___  )(  ____ )( \      (  __  \ ")
+    print green("| )   ( || (   ) || (    \/|  \  / /     ) (   | )   ( || (    \/  | )   ( || (   ) || (    )|| (      | (  \  )")
+    print green("| (___) || (___) || |      |  (_/ /      | |   | (___) || (__      | | _ | || |   | || (____)|| |      | |   ) |")
+    print green("|  ___  ||  ___  || |      |   _ (       | |   |  ___  ||  __)     | |( )| || |   | ||     __)| |      | |   | |")
+    print green("| (   ) || (   ) || |      |  ( \ \      | |   | (   ) || (        | || || || |   | || (\ (   | |      | |   ) |")
+    print green("| )   ( || )   ( || (____/\|  /  \ \     | |   | )   ( || (____/\  | () () || (___) || ) \ \__| (____/\| (__/  )")
+    print green("|/     \||/     \|(_______/|_/    \/     )_(   |/     \|(_______/  (_______)(_______)|/   \__/(_______/(______/ ")
+    print       
+end function
+
+parse_condition = function(condition)
+    if condition.indexOf("router as gateway") then
+        num_conn_gateway = condition[2].to_int
+        return {"num_conn_gateway": num_conn_gateway}
+    end if
+end function
+
+get_vuln_names = function(xploit, lib, addr)
+	vulns_list = xploit.scan_address(lib, addr)
+
+    log.debug(vulns_list)
+    
+	vuln_map = {}
+    last_vuln_name = null
+	for line in vulns_list.split(char(10))
+        if not line.len then continue
+
+		if line.indexOf("Buffer overflow") then
+			vuln_name = line.split(" ")[-3][:-1].trim
+			vuln_name = vuln_name[3:] // Strip bold
+			vuln_name = vuln_name[:-4]
+			vuln_map[vuln_name] = []
+            last_vuln_name = vuln_name
+		end if
+        
+        if line[0] == "*" then
+            condition = parse_condition(line)
+            vuln_map[last_vuln_name].push(condition)
+        end if
+
+	end for
+	log.info(addr + " - " + vuln_map.len + " vulnerabilities found")
+	return vuln_map
+end function
+
+get_vulns = function(xploit, lib)
+	log.info("Scanning for vulnerable addresses...")
+	vuln_addrs = xploit.scan(lib)
+	
+	if vuln_addrs.len < 1 then
+        log.error("\nNo vulnerabilities found, exiting!")
+        exit("")
+    end if
+	
+	log.info("Vulnerable addresses found:")
+	for addr in vuln_addrs
+		log.info("   " + addr)
+	end for
+	print
+	
+	log.info("Finding vulnerabilities...")
+    vuln_map = {}
+	for addr in vuln_addrs
+		vuln_map[addr] = get_vuln_names(xploit, lib, addr)
+	end for
+
+    print
+    log.info("Vulnerabilities found:")
+    for addr in vuln_map.indexes
+        for vuln in vuln_map[addr]
+            log.info("   " + addr + " - " + vuln.key)
+        end for
+    end for
+
+    return vuln_map
+end function
+
+get_open_ports = function(ip_addr)
+	log.info("Scanning " + ip_addr + " for open ports...")
+	
+	router = get_router(ip_addr)
+	if router == null then exit ("Ip address not found, exiting!")
+	
+	ports = router.used_ports
+    return ports
+end function
+
+get_net_session_info = function(net_session)
+    is_root = net_session.is_root_active_user
+    is_active_user = net_session.is_any_active_user
+    num_conn_gateway = net_session.get_num_conn_gateway
+    num_port_forward = net_session.get_num_portforward
+    num_users = net_session.get_num_users
+
+    session_info = {
+        "is_root" : is_root,
+        "is_active_user" : is_active_user,
+        "num_conn_gateway" : num_conn_gateway,
+        "num_port_forward" : num_port_forward,
+        "num_users" : num_users,
+    }
+    return session_info
+end function
+
+attack_vuln = function(lib, addr, name)
+    vuln_handler = new VulnHandler
+
+    print
+    log.info("Attacking " + addr + " - " + name)
+    result = lib.overflow(addr, name)
+
+    if result then
+        log.debug("Attack returned type: " + typeof(result))
+    else
+        log.error("Attack failed, exiting!")
+        exit("")
+    end if
+
+    if vuln_handler.handlers.hasIndex(typeof(result)) then
+        vuln_handler.handlers[typeof(result)](result)
+    else
+        log.error("No handler for return value " + typeof(result) + ", exiting!")
+        exit("")
+    end if
+end function
+
+shell_handler = function(remote_shell)
+    dirty_shell = new DirtyShell
+    DirtyShell.shell = remote_shell
+    dirty_shell.execute
+end function
+
+// ################################### [CLASSES] ##################################
+VulnHandler = {}
+VulnHandler.handlers = {
+    "shell" : @shell_handler,
+}
+
+// #################################### [CODE] ####################################
+log = new Logger
+log.set_log_level("DEBUG")
+
+xploit = include_lib("/lib/metaxploit.so")
+print_banner                                                                                       
+
+
+if not params then 
+    log.error("Usage: worm_9000 <target_ip>")
+    exit("")
+end if
+
+ip_addr = params[0]
+ports = get_open_ports(ip_addr)
+
+print
+log.info("Open ports found:")
+for port in ports
+	if not port.is_closed then
+		log.info("   " + port.port_number)
+	end if
+end for
+print
+
+target_port = user_input("Which port would you like to target (enter 0 for the router)?\n")
+target_port = target_port.to_int
+
+net_session = null
+if target_port == 0 then
+	net_session = xploit.net_use(ip_addr)
+else
+	net_session = xploit.net_use(ip_addr, port)
+end if
+
+session_info = get_net_session_info(net_session)
+log.debug(session_info)
+
+lib = net_session.dump_lib
+log.info("Retreived lib: " + lib.lib_name + " (" + lib.version + ")\n")
+
+vuln_map = get_vulns(xploit, lib)
+print
+log.debug(vuln_map)
+
+is_vuln_found = false
+target_vuln_addr = null
+target_vuln_name = null
+vuln_select = user_input("Enter the name of the vulnerability you'd like to target: ")
+while not is_vuln_found
+    
+
+    for addr in vuln_map.indexes
+        for vuln_name in vuln_map[addr].indexes
+            if vuln_name == vuln_select then
+                is_vuln_found = true
+                target_vuln_addr = addr
+                target_vuln_name = vuln_select
+                break
+            end if
+        end for
+        if is_vuln_found then break
+    end for
+
+    if not is_vuln_found then vuln_select = user_input("Selection not found, enter the name again: ")
+end while
+
+log.debug("Targetting vuln at " + target_vuln_addr + " - " + target_vuln_name)
+
+attack_vuln(lib, target_vuln_addr, target_vuln_name)

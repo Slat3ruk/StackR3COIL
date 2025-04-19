@@ -1,0 +1,55 @@
+import_code("color.src")
+
+Logger = {}
+
+Logger.log_levels = {
+	"DEBUG": 4,
+	"INFO": 3,
+	"WARNING": 2,
+	"ERROR": 1,
+	"NONE": 0,
+}
+
+Logger.log_level = "INFO"
+
+/*
+    Set logging level: DEBUG, INFO, WARNING, ERROR, NONE
+*/
+Logger.set_log_level = function(log_level)
+	if not Logger.log_levels.hasIndex(log_level) then
+		print log_level + " does not exist, setting to debug"
+		Logger.log_level = "DEBUG"
+	else
+		Logger.log_level = log_level
+	end if
+end function
+
+Logger.debug = function(str)
+	if Logger.log_levels[Logger.log_level] >= Logger.log_levels["DEBUG"] then
+		print green("[DEBUG] " + str)
+	end if
+end function
+
+Logger.info = function(str)
+	if Logger.log_levels[Logger.log_level] >= Logger.log_levels["INFO"] then
+		log_str = str
+		if Logger.log_level == "DEBUG" then log_str = "[INFO] " + str
+		print log_str
+	end if
+end function
+
+Logger.warning = function(str)
+	if Logger.log_levels[Logger.log_level] >= Logger.log_levels["WARNING"] then
+		log_str = str
+		if Logger.log_level == "DEBUG" then log_str = "[WARNING] " + str
+		print amber(log_str)
+	end if
+end function
+
+Logger.error = function(str)
+	if Logger.log_levels[Logger.log_level] >= Logger.log_levels["ERROR"] then
+		log_str = str
+		if Logger.log_level == "DEBUG" then log_str = "[ERROR] " + str
+		print red(log_str)
+	end if
+end function

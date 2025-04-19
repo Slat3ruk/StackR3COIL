@@ -1,0 +1,16 @@
+green = function(str)
+    return "<color=#00FF1F>" + str + "</color>"
+end function
+
+red = function(str)
+    return "<color=#FF0000>" + str + "</color>"
+end function
+
+amber = function(str)
+    return "<color=#ffd500>" + str + "</color>"
+end function
+
+blue = function(str)
+    return "<color=#0061ff>" + str + "</color>"
+end function
+

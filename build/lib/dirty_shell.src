@@ -1,0 +1,85 @@
+DirtyShell = {}
+
+DirtyShell.shell = null
+
+DirtyShell.cmd = function()
+	while (true)
+		// TODO: Something to do with get_custom_object?
+		// username = remote_shell.launch("/bin/whoami")
+		// dir = remote_shell.launch("/bin/pwd")
+
+		// cmd_str = user_input(username + ":" + dir + "$").trim
+		cmd_str = user_input("> ").trim
+
+		if not cmd_str then
+			log.warn "Empty command string entered"
+		else if cmd_str.upper == "EXIT" then
+			log.info "Closing shell..."
+			break
+		else
+			cmd = cmd_str
+			args = ""
+
+			// Does our command contain arguments?
+			args_idx = cmd_str.indexOf(" ")
+			if args_idx then
+				cmd = cmd_str[ : args_idx].trim
+				args = cmd_str[args_idx : ].trim
+			end if
+
+			if not cmd.indexOf("/bin/") then cmd = "/bin/" + cmd
+			log.debug "Sending cmd: " + cmd + " " + args
+			DirtyShell.shell.launch cmd, args
+		end if
+	end while
+end function
+
+DirtyShell._exit = function()
+    // Empty function
+end function
+
+
+DirtyShell.options = {
+    "cmd" : {"idx": 0, "cmd" : @DirtyShell.cmd},
+    "ping" : {"idx": 1, "cmd": null},
+    "start_terminal" : {"idx" : 2, "cmd" : null},
+    "exit" : {"idx": 3, "cmd" : @DirtyShell._exit},
+}
+
+DirtyShell.execute = function()
+    options = DirtyShell.options
+
+	if not DirtyShell.shell then
+		log.error "No shell attached, set DirtyShell.shell = <remote_shell>"
+		return 
+	end if
+
+    while (true)
+        DirtyShell.print_menu
+        print
+        user_option = user_input("Select option (0-" + (options.len-1) + "): ").to_int
+        if typeof(user_option) != "number" or user_option < 0 or user_option > options.len-1 then 
+            log.warning("Option not recognised, try again")
+            continue
+        else if user_option == options["exit"]["idx"] then
+            log.info("Closing Dirty Shell...")
+            break
+        else
+            for option in options.indexes
+                // Find the write option handler and execute
+                // Pretty janky but what can you do
+                if options[option]["idx"] == user_option then options[option]["cmd"]
+            end for
+        end if
+    end while
+end function
+
+DirtyShell.print_menu = function()
+    log.info("Dirty Shell options:")
+    options = DirtyShell.options
+
+    for option in options.indexes
+        log.info("[" + options[option]["idx"] + "] - " + option)
+    end for
+end function
+
