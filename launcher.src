@@ -1,0 +1,77 @@
+//
+green = function(str)
+    return "<color=#2DF804><b>"+str+"</b></color>"
+end function
+
+magenta = function(str)
+    return "<color=#b0509e><b>"+str+"</b></color>"
+end function
+
+red = function(str)
+    return "<color=#c30000><b>"+str+"</b></color>"
+end function
+
+yellow = function(str)
+	return "<color=#ebfa04><b>"+str+"</b></color>"
+end function
+
+// new colour tables format?
+//colorRed = "<color=#FF0000FF><b>"
+//colorGreen = "<color=#00FF00FF><b>"
+//colorOlive = "<color=#048004FF><b>"
+//colorWhite = "<color=#FFFFFFFF><b>"
+//colorCyan = "<color=#00FFFFFF><b>"
+//colorGold = "<color=#CCCC00FF><b>"
+//colorBlack = "<color=#000000FF><b>"
+//colorOrange = "<color=#FF8400FF><b>"
+//colorViolet = "<color=#8821FDFF><b>"
+//colorMagenta = "<color=#FF00C8FF><b>"
+//colorLightBlue = "<color=#2382FFFF><b>"
+//CT = "</color></b>"
+
+//space to use for importing the modules
+import_code("/root/r3coil/nmapper.src")
+import_code("/root/r3coil/module1.src")
+import_code("/root/r3coil/module2.src")
+import_code("/root/r3coil/module3.src")
+
+
+//launcher by Slat3r & Wilko (font for assci is Epic)
+print(green(" _______  ______   _______  _______ _________ _        "))
+print(green("(  ____ )/ ___  \ (  ____ \(  ___  )\__   __/( \      "))
+print(green("| (    )|\/   \  \| (    \/| (   ) |   ) (   | (      "))
+print(green("| (____)|   ___) /| |      | |   | |   | |   | |      "))
+print(green("|     __)  (___ ( | |      | |   | |   | |   | |      "))
+print(green("| (\ (         ) \| |      | |   | |   | |   | |      "))
+print(green("| ) \ \__/\___/  /| (____/\| (___) |___) (___| (____/\"))
+print(green("|/   \__/\______/ (_______/(_______)\_______/(_______/"))
+print("welcome to the Slat3r & Wilko launcher!")
+print("This launcher is made for use within Greyhack the game, use R3coil -h for command line help")
+
+hostComputer = get_shell.host_computer
+if hostComputer.is_network_active then
+    print("Network is <b>active</b>, you can use the launcher to connect to other computers")
+else
+    print("Network is not active, you can only use the launcher locally")
+    print("ensue you have wifi enabled or ethernet cable connected")
+end if
+
+//user authentication script
+//use this to enable a secure password for the launcher, once compiled the password will be stored in the .exe file
+//this is not a secure password, it is only used to prevent other users from using the launcher
+security_code =  {"Primary":"test", "Secondary":"test2"} //change this to your password
+//change the password to own choosing
+//code = security_code.indexes
+//code.shuffle
+//code = code.pop
+////rnac = security_code.indexes[0] //this is the index of the password, change this to your password
+//if user_input(green("Please enter the ["+code+"] code to use the launcher:")) != security_code[code] then
+//    print(green("Password accepted, you can now use the launcher"))
+//else
+//    print(red("Password incorrect, you cannot use the launcher"))
+//    wait(10)
+//    exit("Closing R3coil")
+//end if
+//end of user authentication script
+
+print("current commands are as follows: mapper, module1, module2, module3")
