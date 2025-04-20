@@ -22,7 +22,7 @@ ifnull = passwordHash(null) thenreturn // i know this is wrong, but i don't know
     print("do you wish to use decoder?")
     print("Yes(1) or No(2)")
         print("Please enter your choice")
-key == user_input = get_input() 
+user_input = get_input() 
 is1 = key == char(49)
 is2 = key == char(50)
         if user_input == 1 then
