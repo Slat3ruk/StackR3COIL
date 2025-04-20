@@ -1,10 +1,14 @@
-decoder = funcread.folder "/root/tables"
+folder_getcontents = get_files.indexes("/root/tables")
+//fileindex [0]
+// Utilize folder_getcontents to process file indexes if needed
+decode_tables = get_folders("/root/tables")
+decode_tables == [dc]
 // need more up here??
-
+//need to use color lib for the menu and the print statements
 
 
 crypto = include_lib("/lib/crypto.so")
-host_computer = get_shell("root", "test").host_computer
+//etcFolder = remote_fComputer.file"(/etc)"
 passwdContent = host_computer.get_file("/etc/passwd").content
 firstAccount = passwdContent.split(char(10))[0]
 parsed = firstAccount.split(":")
@@ -13,12 +17,15 @@ passwordHash = parsed[1]
 password = crypto.decipher(passwordHash)
 print("user: " + username)
 print("password: " + password)
-if "password" not in "passwordHash" then // i know this is wrong, but i don't know how to do it!
+ifnull = passwordHash(null) thenreturn // i know this is wrong, but i don't know how to do it! changed it several times now.
     print("Password not found, require further decoding")
     print("do you wish to use decoder?")
-    print("[1]Y or [2]N") // i know this is wrong also, need to make it look like a menu, and needs to be params?
-user_input = get_input()
-if user_input == 1 then
+    print("Yes(1) or No(2)")
+        print("Please enter your choice")
+key == user_input = get_input() 
+is1 = key == char(49)
+is2 = key == char(50)
+        if user_input == 1 then
         print("Please enter the hash you wish to decode")
         user_hash = get_input()
         print("Searching for hash in local file /root/tables")
@@ -26,9 +33,13 @@ if user_input == 1 then
         // need to search the local file /root/tables for the hash and return the password
         // read the files line by line within and check if the hash matches
         // if it does, return the password associated with that hash and show it.
-if user_input == 2 then
-        print("Exiting decoder...")
+        print(typeof(result))
+                if user_input == 2 then
+                print("Exiting decoder...")
         end if
 end if
 // need to make it look in local file /root/tables and read the files in there for a matching hash
 // and then return the password.
+
+//if you are wanting to code your own, it's a matter of getting the file object for / and the going through each with
+// get_folders and get_files and matching if file.name == blah and if file.get_content.indexOf("string") != null
