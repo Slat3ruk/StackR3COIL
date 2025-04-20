@@ -1,0 +1,34 @@
+decoder = funcread.folder "/root/tables"
+// need more up here??
+
+
+
+crypto = include_lib("/lib/crypto.so")
+host_computer = get_shell("root", "test").host_computer
+passwdContent = host_computer.get_file("/etc/passwd").content
+firstAccount = passwdContent.split(char(10))[0]
+parsed = firstAccount.split(":")
+username = parsed[0]
+passwordHash = parsed[1]
+password = crypto.decipher(passwordHash)
+print("user: " + username)
+print("password: " + password)
+if "password" not in "passwordHash" then // i know this is wrong, but i don't know how to do it!
+    print("Password not found, require further decoding")
+    print("do you wish to use decoder?")
+    print("[1]Y or [2]N") // i know this is wrong also, need to make it look like a menu, and needs to be params?
+user_input = get_input()
+if user_input == 1 then
+        print("Please enter the hash you wish to decode")
+        user_hash = get_input()
+        print("Searching for hash in local file /root/tables")
+        read.file("/root/tables")
+        // need to search the local file /root/tables for the hash and return the password
+        // read the files line by line within and check if the hash matches
+        // if it does, return the password associated with that hash and show it.
+if user_input == 2 then
+        print("Exiting decoder...")
+        end if
+end if
+// need to make it look in local file /root/tables and read the files in there for a matching hash
+// and then return the password.
